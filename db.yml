@@ -1,12 +1,13 @@
-service:
+services:
   db:
     image: postgres:16-alpine
+    environment:
       POSTGRES_USER: L
       POSTGRES_PASSWORD: "1"
       POSTGRES_DB: app
     ports:
       - "5431:5432"
-    volume:
+    volumes:
       - OPP:/var/lib/postgresql/data
     networks:
       - BTV
@@ -20,11 +21,11 @@ service:
       replicas: 1
       restart_policy:
         condition: on-failure
-        monitor: 50s
       update_config:
         parallelism: 1
         delay: 5s
-        action_failure: rollback
+        failure_action: rollback
+        monitor: 50s
       rollback_config:
         parallelism: 1
         delay: 5s
