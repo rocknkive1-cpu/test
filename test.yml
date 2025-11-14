@@ -1,0 +1,43 @@
+networks:
+  NET: {}
+services:
+  web:
+    image: nginx:alpine
+    networks:
+      - NET
+    volumes:
+      - ./html:/usr/share/nginx/html
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    deploy:
+      replicas: 5
+      restart_policy:
+        condition: on-failure
+      update_config:
+        parallelism: 1
+        delay: 5s
+        failure_action: rollback
+        monitor: 30s
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+        order: start-first
+
+
+  haproxy:
+    image: haproxy:alpine
+    networks:
+      - NET
+    ports:
+      - target: 80
+        published: 8081
+        protocol: tcp
+        mode: ingress
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+
+
